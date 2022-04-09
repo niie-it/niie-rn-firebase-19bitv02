@@ -1,8 +1,52 @@
 import React, { useState } from 'react'
 import { Text, TextInput, TouchableOpacity, View, StyleSheet } from 'react-native'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+import { doc, setDoc, getFirestore } from "firebase/firestore";
+
 import { Navigator } from '../constants';
+import { app } from '../firebase';
+
 export const RegisterScreen = ({ navigation }) => {
+    const [fullName, setFullName] = useState('');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+
+
+    const handleRegister = () => {
+        if (password === confirmPassword) {
+            const auth = getAuth();
+            // Initialize Cloud Firestore and get a reference to the service
+            const db = getFirestore(app);
+
+            createUserWithEmailAndPassword(auth, email, password)
+                .then((userCredential) => {
+                    // Signed in 
+                    const user = userCredential.user;
+
+                    // Store user information into firestore
+                    var userData = {
+                        id: user.uid,
+                        email,
+                        fullName
+                    };
+                    // Add a new user document in collection "users"
+                    setDoc(doc(db, "users", userData.id), userData)
+                        .then((response) => {
+                            alert("Thành công")
+                            console.log(response)
+                        }).catch((e) => alert(e.message));
+
+                })
+                .catch((error) => {
+                    const errorCode = error.code;
+                    const errorMessage = error.message;
+                    // ..
+                });
+        }
+    }
+
     return (
         <View style={styles.container}>
             <KeyboardAwareScrollView
@@ -14,6 +58,8 @@ export const RegisterScreen = ({ navigation }) => {
                     placeholderTextColor="#aaaaaa"
                     underlineColorAndroid="transparent"
                     autoCapitalize="none"
+                    value={fullName}
+                    onChangeText={(v) => setFullName(v)}
                 />
                 <TextInput
                     style={styles.input}
@@ -21,6 +67,8 @@ export const RegisterScreen = ({ navigation }) => {
                     placeholderTextColor="#aaaaaa"
                     underlineColorAndroid="transparent"
                     autoCapitalize="none"
+                    value={email}
+                    onChangeText={(v) => setEmail(v)}
                 />
                 <TextInput
                     style={styles.input}
@@ -29,6 +77,8 @@ export const RegisterScreen = ({ navigation }) => {
                     placeholder='Password'
                     underlineColorAndroid="transparent"
                     autoCapitalize="none"
+                    value={password}
+                    onChangeText={(v) => setPassword(v)}
                 />
                 <TextInput
                     style={styles.input}
@@ -37,9 +87,12 @@ export const RegisterScreen = ({ navigation }) => {
                     placeholder='Confirm Password'
                     underlineColorAndroid="transparent"
                     autoCapitalize="none"
+                    value={confirmPassword}
+                    onChangeText={(v) => setConfirmPassword(v)}
                 />
                 <TouchableOpacity
                     style={styles.button}
+                    onPress={handleRegister}
                 >
                     <Text style={styles.buttonTitle}>Create account</Text>
                 </TouchableOpacity>
