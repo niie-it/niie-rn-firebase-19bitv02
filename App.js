@@ -19,9 +19,8 @@ export default function App() {
           <Stack.Screen name={Navigator.home} component={HomeScreen} />
         ) : (
           <>
-            <Stack.Screen name={Navigator.register} component={RegisterScreen} />
             <Stack.Screen name={Navigator.login} component={LoginScreen} />
-
+            <Stack.Screen name={Navigator.register} component={RegisterScreen} />
           </>
         )}
       </Stack.Navigator>

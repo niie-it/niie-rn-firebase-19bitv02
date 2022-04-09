@@ -4,7 +4,7 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 import { doc, setDoc, getFirestore } from "firebase/firestore";
 
-import { Navigator } from '../constants';
+import { Navigator, fsCollection } from '../constants';
 import { app } from '../firebase';
 
 export const RegisterScreen = ({ navigation }) => {
@@ -32,10 +32,9 @@ export const RegisterScreen = ({ navigation }) => {
                         fullName
                     };
                     // Add a new user document in collection "users"
-                    setDoc(doc(db, "users", userData.id), userData)
-                        .then((response) => {
-                            alert("Thành công")
-                            console.log(response)
+                    setDoc(doc(db, fsCollection.users, userData.id), userData)
+                        .then(() => {
+                            navigation.navigate(Navigator.home, { user: userData });
                         }).catch((e) => alert(e.message));
 
                 })

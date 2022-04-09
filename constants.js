@@ -3,3 +3,7 @@ export const Navigator = {
     register: "Register",
     login: "Login"
 };
+
+export const fsCollection = {
+    users: "users"
+};

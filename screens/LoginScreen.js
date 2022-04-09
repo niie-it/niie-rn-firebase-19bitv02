@@ -1,9 +1,45 @@
 import React, { useState } from 'react'
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { Navigator } from '../constants';
+import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import { doc, getDoc, getFirestore } from "firebase/firestore";
+
+import { Navigator, fsCollection } from '../constants';
+import { app } from '../firebase';
 
 export const LoginScreen = ({ navigation }) => {
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+
+    const handleLogin = () => {
+        const auth = getAuth();
+        const db = getFirestore(app);
+
+        signInWithEmailAndPassword(auth, email, password)
+            .then((userCredential) => {
+                // Signed in 
+                const user = userCredential.user;
+                console.log(user)
+
+                // Read user data from firestore
+                const docRef = doc(db, fsCollection.users, user.uid);
+                getDoc(docRef)
+                    .then((res) => {
+                        if (res.exists()) {
+                            console.log(res.data())
+                            navigation.navigate(Navigator.home, { user: res.data() });
+                        } else {
+                            console.log("Document not found")
+                        }
+                    })
+                    .catch((err) => console.log(err.message));
+            })
+            .catch((error) => {
+                const errorCode = error.code;
+                const errorMessage = error.message;
+                alert('code: ' + errorCode + ': ' + errorMessage)
+            });
+    }
 
     return (
         <View style={styles.container}>
@@ -16,6 +52,8 @@ export const LoginScreen = ({ navigation }) => {
                     placeholderTextColor="#aaaaaa"
                     underlineColorAndroid="transparent"
                     autoCapitalize="none"
+                    value={email}
+                    onChangeText={(v) => setEmail(v)}
                 />
                 <TextInput
                     style={styles.input}
@@ -24,9 +62,12 @@ export const LoginScreen = ({ navigation }) => {
                     placeholder='Password'
                     underlineColorAndroid="transparent"
                     autoCapitalize="none"
+                    value={password}
+                    onChangeText={(v) => setPassword(v)}
                 />
                 <TouchableOpacity
                     style={styles.button}
+                    onPress={handleLogin}
                 >
                     <Text style={styles.buttonTitle}>Log in</Text>
                 </TouchableOpacity>
