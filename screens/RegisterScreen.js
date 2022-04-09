@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Text, TextInput, TouchableOpacity, View, StyleSheet } from 'react-native'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-
+import { Navigator } from '../constants';
 export const RegisterScreen = ({ navigation }) => {
     return (
         <View style={styles.container}>
@@ -44,9 +44,10 @@ export const RegisterScreen = ({ navigation }) => {
                     <Text style={styles.buttonTitle}>Create account</Text>
                 </TouchableOpacity>
                 <View style={styles.footerView}>
-                    <Text style={styles.footerText}>Already got an account?
+                    <Text style={styles.footerText}>Already got an account?{' '}
                         <Text
                             style={styles.footerLink}
+                            onPress={() => navigation.navigate(Navigator.login)}
                         >
                             Log in
                         </Text>
